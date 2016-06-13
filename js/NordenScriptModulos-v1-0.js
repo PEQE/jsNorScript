@@ -1,39 +1,12 @@
-/*  ----  Controlles para Edicion de Datos  ----
-    Desarrollado por Ernesto Alejandro Pérez Quintana
-    12-01-2016 ( Creacion de jsNorLoading , panel de espera miestras se carga o completa un proceso ).
-    13-01-2016 ( Definicion de Componente jsNorForm para edicion de datos ).
-     - Renombre de enumDataTypes a ControllerTypesOptions
-     - Creacion de enumeracion EditFormOptions para definicion de tipos de formularios
-*/
-function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
-    var R = 6378.137; // Radius of earth in KM
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    var d = R * c;
-    return d * 1000; // meters
-}
-$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
-   _renderItem: function( ul, item ) {
-    var li = $( "<li>", { text: item.label } );
-
-    if ( item.disabled ) {
-       li.addClass( "ui-state-disabled" );
-    }
-
-    $( "<span>", {
-       style: item.element.attr( "data-style" ),
-       "class": "ui-icon " + item.element.attr( "data-class" )
-    })
-        .appendTo( li );
-    return li.appendTo( ul );
-   }
- });
 var hexDigits = new Array("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
-
+//==============================================================================
+//=     Enumeraciones
+//==============================================================================
+/**
+ * Lista de Widget para los elementos jsNor...
+ * @readonly
+ * @enum {number}
+ */
 var WidgetTypeOptions         = Object.freeze({ // Lista de Widgets del framework y API
     "UNKNOW"                : 0x000000 ,
     "jsNorWindow"           : 0x000001 ,
@@ -44,6 +17,12 @@ var WidgetTypeOptions         = Object.freeze({ // Lista de Widgets del framewor
     "jsNorMenu"             : 0x000006 ,
     "jsNorList"             : 0x000007
 });
+//==============================================================================
+/**
+ * Lista de controler para formularios
+ * @readonly
+ * @enum {number}
+ */
 var ControllerTypesOptions  = Object.freeze({ // Tipos de Controles para formulario
     "UNKNOW"     : 0x010000 ,
     "Int"        : 0x010001 ,
@@ -70,17 +49,35 @@ var ControllerTypesOptions  = Object.freeze({ // Tipos de Controles para formula
     "Form"       : 0x010016 ,
     "SelectIcon": 0x010017 
 });
+//==============================================================================
+/**
+ * Diferentes formas de edicion para los formularios
+ * @readonly
+ * @enum {number}
+ */
 var EditFormOptions         = Object.freeze({ //Tipos de formularios para la edicion de datos
     "UNKNOW"     : 0x020000 ,
     "FORM"       : 0x020001 ,
     "ROW"        : 0x020002 ,
-    "INLINE"     : 0x020003
+    "INLINE"     : 0x020003 ,
 });
+//==============================================================================
+/**
+ * Estados para la ventana del elemento jsNorWindow 
+ * @readonly
+ * @enum {number}
+ */
 var WindowStateOptions = Object.freeze({ // Status de las ventanas
     "WINDOW"    : 0x030000,
     "MINIMIZE"  : 0x030001,
     "MAXIMIZE"  : 0x030002
 });
+//==============================================================================
+/**
+ * Estilos para la barra del elemento jsNorMenu
+ * @readonly
+ * @enum {number}
+ */
 var MenuOptions = Object.freeze({ // Tipos de Estilos para el barra de menu
     "SIMPLE"        : 0x040000,
     "TOP_IMAGE"     : 0x040001,
@@ -89,8 +86,24 @@ var MenuOptions = Object.freeze({ // Tipos de Estilos para el barra de menu
     "RIGHT_IMAGE"   : 0x040004
 });
 //==============================================================================
-//=     Funciones Utilitarios
+//=     Sobre carga de elementos
 //==============================================================================
+$.widget( "custom.iconselectmenu", $.ui.selectmenu, {
+   _renderItem: function( ul, item ) {
+    var li = $( "<li>", { text: item.label } );
+
+    if ( item.disabled ) {
+       li.addClass( "ui-state-disabled" );
+    }
+
+    $( "<span>", {
+       style: item.element.attr( "data-style" ),
+       "class": "ui-icon " + item.element.attr( "data-class" )
+    })
+        .appendTo( li );
+    return li.appendTo( ul );
+   }
+ });
 $.fn.hasOverflow = function() {
     var $this = $(this);
     var $children = $this.find('*');
@@ -143,7 +156,6 @@ String.prototype.ToHex = function ( ) {
     return "transparet";
   }
 };
-function hex(x) { return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16]; }
 //----------------------------------------------------
 //-     Elimina valores repetidos de un arreglo
 //----------------------------------------------------
@@ -170,28 +182,129 @@ JSON.isJSON = function( pValueString ){
   }
   return false;
 };
-//----------------------------------------------------
-//-     Obtiene un parametro de URL
-//----------------------------------------------------
+//==============================================================================
+//=     Funciones Utilitarios
+//==============================================================================
+/**
+* Convierte un numero a en base 10 a Hexadecimal
+* 
+* @param {float} x  valor en base 10
+* @return {float} numero_base16
+*/
+function hex(x) { return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16]; }
+//==============================================================================
+/**
+* Obtiene la distancia en Kilometros de un punto (A) a un punto (B)
+* 
+* @param {float} lat1  latitud de punto A
+* @param {float} lon1  longitud de punto A
+* @param {float} lat2  laititud de punto B
+* @param {float} lon2  longitud del punto B
+* @return {float} distancia
+*/
+function measure(lat1 , lon1, lat2, lon2){  // generally used geo measurement function
+    var R = 6378.137; // Radius of earth in KM
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLon = (lon2 - lon1) * Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    return d * 1000; // meters
+}
+//==============================================================================
+/**
+* Obtiene un parametro de una Url dada
+* 
+* @param {string} name  cadena o url
+* @return {object} results
+*/
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
-//----------------------------------------------------
-//-     Verifica si una imagen existe
-//----------------------------------------------------
+//==============================================================================
+/**
+* Verifica si existe una imagen, regresa TRUE si existe o FALSE en caso contrario
+* 
+* @param {string} url  direccion de la imagen o codigo
+* @param {function} callback  funcion de regreso con el parametro de respuesta 
+*/
 function imageExists(url, callback) {
   var img = new Image();
   img.onload = function() { callback(true); };
   img.onerror = function() { callback(false); };
   img.src = url;
 }
-//----------------------------------------------------
-//-     Genera una cadena Aleatoria
-//----------------------------------------------------
-function __GetKey( len, prefix ) {
+//==============================================================================
+function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
+//==============================================================================
+function handleFileSelect_Once( fileContent , container , p_callBack ) {
+    reader = new FileReader();
+    reader.onload = function(e) {
+      var fileName = fileContent.name;
+      var fileSource = this.result ;
+      var fileType = fileContent.type;
+      if( p_callBack )
+        p_callBack( container , fileName , fileSource , fileType );
+      return ;
+    }
+    reader.readAsDataURL( fileContent );
+  }
+//==============================================================================
+function handleFileSelect( evt , p_callBack ) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    var files = evt.dataTransfer.files;
+    var output = [];
+    for (var i = 0, f; f = files[i]; i++) {
+        handleFileSelect_Once(f , this , p_callBack );
+    }
+}
+//==============================================================================
+function readSingleFile(e , p_callBack) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    if( p_callBack )
+      p_callBack( contents );
+  };
+  reader.readAsText(file);
+}
+//==============================================================================
+function readSingleFileDataUrl(e , p_callBack ) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    if( p_callBack )
+      p_callBack( contents );
+  };
+  reader.readAsDataURL(file);
+}
+//==============================================================================
+/**
+* Genera una cadena de caracteres aleatorios con una dimension dada
+* 
+* @param {int} len  longitud de la cadena , 15 por default
+* @param {string} prefix  prefijo de la cadena, no se toma en cuenta para la dimension 
+* @return {string} randomString cadena aleatoria
+*/
+function __GetKey( len = 10 , prefix ) {
   var charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   var randomString = '';
   for (var i = 0; i < len; i++) {
@@ -203,9 +316,9 @@ function __GetKey( len, prefix ) {
   }
   return randomString;
 };
-//==================================================================================================================
-//==================================================================================================================
-//==================================================================================================================
+//==============================================================================
+//=     Elementos jsNor...
+//==============================================================================
 /**
 * Clase Base de todos los widgets del framework y API
 *
@@ -218,7 +331,7 @@ function __GetKey( len, prefix ) {
 function jsNorBase() {
   var param_ControlConfiguration = arguments[0] ? arguments[0] : {} ;
     var // Propieades del Widget          ==============================
-    obj_currentItem = this,
+    obj_currentItem = {},
         /**
         * id del widget , clave que identifica el objeto DOM en el documento HTML
         * 
@@ -272,6 +385,7 @@ function jsNorBase() {
       $(property_elementDOM).attr("id", property_id);
   }
   __Init();
+  return obj_currentItem;
 }
 //==================================================================================================================
 //==================================================================================================================
@@ -2056,647 +2170,6 @@ function Ajax_ServerRequest( p_UrlAction,  p_MethodType , p_DataRequest , p_Ajax
        if( p_AjaxCallBack ){
          p_AjaxCallBack( data.decodeURI() );
        }
-     }
-   });
-}
-//==============================================================================
-//=     Control de Peticiones Asincronas al Servidor
-//==============================================================================
-$(document).ready(function(){
-  $("form").submit(function( event ) {
-      if( $(this).attr("function") ){
-        var formData = new FormData( this );// yourForm: form selector
-        var formData = {};
-        var functForm = $(this).attr("function");
-        for( var index = 0; index < $(this).find("[name]").length;index++ ){
-            var itemInput = $( $(this).find("[name]").get( index ) );
-            formData[ itemInput.attr("name") ] = itemInput.val().encodeURI();
-        }
-        Ajax_ServerRequest( $(this).attr("action") , $(this).attr("method") , formData , function( data ){
-            if( typeof window[functForm] == "function"){
-                window[functForm]( data );
-            }
-        }); 
-        event.preventDefault(); 
-      }
-  });
-});
-//==============================================================================
-//=     Funciones Basicas para Sitio Administracion
-//==============================================================================
-window.Access = function( pRESULT ){
-  if( JSON.isJSON( pRESULT ) ){
-    var resultJSON = JSON.parse( pRESULT );
-    if( resultJSON.length > 0 ){
-      new jsNorAlert(
-        " Bienvenido " + resultJSON[0].Nombre,
-        "Sesion Iniciada",
-        "<span style='color:green;' class='glyphicon glyphicon-ok' ></span>" ,
-        "" , function(){
-        window.location.reload();
-      } ).Open();
-      return;
-    }
-  }
-  new jsNorAlert( "El usuario o contraseña es incorrecto", "Error", "<span style='font-size:50px; color:red;' class='glyphicon glyphicon-ban-circle' ></span><br/>" ,"" , null ).Open();
-};
-// =============================================================================
-function fn_CreateKey( MaxLenght , Prefix ){
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for( var i=0; i <  MaxLenght ; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    if( Prefix )
-      text = Prefix + "-" + text;
-    return text;
-}
-function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
-function handleFileSelect_Once( fileContent , container , p_callBack ) {
-    reader = new FileReader();
-    reader.onload = function(e) {
-      var fileName = fileContent.name;
-      var fileSource = this.result ;
-      var fileType = fileContent.type;
-      if( p_callBack )
-        p_callBack( container , fileName , fileSource , fileType );
-      return ;
-    }
-    reader.readAsDataURL( fileContent );
-  }
-function handleFileSelect( evt , p_callBack ) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    var files = evt.dataTransfer.files;
-    var output = [];
-    for (var i = 0, f; f = files[i]; i++) {
-        handleFileSelect_Once(f , this , p_callBack );
-    }
-}
-function readSingleFile(e , p_callBack) {
-  var file = e.target.files[0];
-  if (!file) {
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var contents = e.target.result;
-    if( p_callBack )
-      p_callBack( contents );
-  };
-  reader.readAsText(file);
-}
-function readSingleFileDataUrl(e , p_callBack) {
-  var file = e.target.files[0];
-  if (!file) {
-    return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var contents = e.target.result;
-    if( p_callBack )
-      p_callBack( contents );
-  };
-  reader.readAsDataURL(file);
-}
-
-function jsManagerController(){
-	var
-		Configuration = arguments[0],
-		m_currentItem = this,
-    m_elementDOM  = null,
-    m_id          = "" ,
-		m_container   = {} ,
-		m_data        = [] ,
-    m_method      = "" ,
-    m_request     = "" ,
-    m_type        = "" ,
-    m_url         = "" ;
-	var _CreateMenuItem = function( objectJSON ){
-		var elementLI = document.createElement("li");
-		$(elementLI)
-			.append(function(){
-				var elementA = document.createElement("a");
-				$( elementA )
-					.attr("href", objectJSON.Url )
-					.html( objectJSON.Title );
-        if(  objectJSON.Title.indexOf("<") != -1){
-  				$( elementA ).css({"padding":"7px"})
-        }
-				return elementA;
-			});
-		return  elementLI;
-	};
-	var _CreateMenuIcon = function( objectJSON ){
-		var elementLI = document.createElement("li");
-		$(elementLI)
-			.append(function(){
-				var elementA = document.createElement("a");
-				$( elementA )
-					.attr("href", objectJSON.Url )
-					.append("<i class='uk-icon-small uk-icon-"+objectJSON.Icon+"'></i>");
-				return elementA;
-			});
-		return  elementLI;
-	};
-	var _CreateMenuImage = function( objectJSON ){
-		var elementLI = document.createElement("li");
-		$(elementLI)
-			.append(function(){
-				var elementIMG = document.createElement("img");
-				$( elementIMG )
-					.attr("src", objectJSON.Image )
-					.css( {"width": objectJSON.width + "px","height": objectJSON.height+"px"} );
-				return elementIMG;
-			});
-		return  elementLI;
-	};
-	var _CreateMenu = function( p_data , isSubMenu ){
-		var elementUL = document.createElement("ul");
-    if( isSubMenu ){
-      $(elementUL)
-        .addClass("dropdown-menu");
-    }
-    else{
-      $(elementUL)
-        .addClass("nav")
-        .addClass("navbar-nav");
-    }
-
-		for( var i = 0; i < p_data.length ; i++){
-			var menuItem = null;
-			switch ( parseInt(p_data[i].ItemType)) {
-				case 0:
-					menuItem = _CreateMenuImage( p_data[i] );
-				break;
-				case 1:
-					menuItem = _CreateMenuIcon( p_data[i] );
-				break;
-				case 2:
-					menuItem = _CreateMenuItem( p_data[i] );
-				break;
-			}
-      if( p_data[i].Pages && p_data[i].Pages.length > 0){
-        $( menuItem )
-          .addClass("dropdown")
-          .find("a")
-            .attr("data-toggle","dropdown")
-            .attr("role","button")
-            .attr("aria-haspopup",true)
-            .attr("aria-expanded",false )
-            .addClass("dropdown-toggle");
-        $(menuItem)
-          .append( _CreateMenu( p_data[i].Pages , true) );
-      }
-      if( p_data[i].Url ){
-        var PageName = p_data[i].Url.split("/").reverse()[0];
-  			if( window.location.pathname.indexOf( PageName ) != -1 ){
-  				$(menuItem).addClass("active");
-  			}
-      }
-			$(elementUL).append( menuItem );
-		}
-    return elementUL;
-	};
-  var _CreateHeader = function( ){
-    var elementDIV = document.createElement("div");
-    $(elementDIV)
-      .addClass("navbar-header")
-      .append(function(){
-        var elementBUTTON = document.createElement("button");
-        $(elementBUTTON)
-          .attr("type","button")
-          .attr("data-toggle","collapse")
-          .attr("data-target","#pnl_Menu" + m_id )
-          .attr("aria-expanded", false)
-          .addClass("navbar-toggle")
-          .addClass("collapsed")
-          .append("<span class='icon-bar'></span>")
-          .append("<span class='icon-bar'></span>")
-          .append("<span class='icon-bar'></span>")
-        return elementBUTTON;
-      })
-      .append(function(){
-        var elementA = document.createElement("a");
-        $(elementA)
-          .attr("href" ,  m_data[0].Url )
-          .append("<img alt='LOGO' src='../../Resources/lib/images/Logo.png' style='max-height: 50px;'>");
-        return elementA;
-      })
-    return elementDIV;
-  };
-  var _CreateCollapseMenu = function(){
-    var elementDIV = document.createElement("div");
-    $(elementDIV)
-      .attr("id","pnl_Menu" + m_id )
-      .addClass("collapse")
-      .addClass("navbar-collapse")
-      .append( _CreateMenu( m_data ));
-    return elementDIV;
-  };
-  var __Init = function(){
-    m_container  = Configuration.Container  ? Configuration.Container  : [];
-    m_data       = Configuration.Data       ? Configuration.Data       : [];
-      m_method     = Configuration.Method     ? Configuration.Method     : "POST";
-      m_request    = Configuration.Request    ? Configuration.Request    : { "CommandType":"GET_MENU_INICIO"};
-      m_type       = Configuration.RequetType ? Configuration.RequetType : "JSON";
-      m_url        = Configuration.Url        ? Configuration.Url : "";
-
-      if( m_url != "" && m_data.length == 0){
-        Ajax_ServerRequest( m_url,  m_method , m_request , function( data ){
-          m_data = JSON.parse( data );
-          $(m_container).empty();
-          $(m_container)
-            .append( _CreateHeader() )
-            .append(function(){
-              var elementDIV = document.createElement("div");
-              $(elementDIV)
-                .addClass("container-fluid")
-                .append( _CreateCollapseMenu() );
-                return elementDIV;
-            });
-        });
-      }
-      else{
-        $(m_container).empty();
-        $(m_container)
-          .append( _CreateHeader() )
-          .append(function(){
-            var elementDIV = document.createElement("div");
-            $(elementDIV)
-              .addClass("container-fluid")
-              .append( _CreateCollapseMenu() );
-              return elementDIV;
-          });
-      }
-	};
-		__Init();
-};
-
-function jsModulosManager( ){
-  var Configuration = arguments[0] ? arguments[0] : {};
-  var m_CurrentObject = this;
-
-  var m_Modulos =  Configuration.Modulos ? Configuration.Modulos : [] ;
-  var m_Container = Configuration.id ? $( Configuration.id ).get(0) : document.createElement("div");
-  var m_id = fn_CreateKey( 5 ,"pnlGeneric");
-  var m_ColumnGrid  = Configuration.Colums ? Configuration.Colums : 4;
-
-  Object.defineProperties( m_CurrentObject , {
-      "Modulos":{
-          get: function( ){ return m_Modulos; },
-          set : function( value ){ m_Modulos = value; },
-      },
-      "Container":{
-          get: function( ){ return m_Container; }
-      },
-      "ColumnGrid":{
-          get: function( ){ return m_ColumnGrid; }
-      }
-    });
-  this.__Init = function( ){
-    for (var index = 0; index < this.Modulos.length; index++) {
-      $( this.Container ).append( this.CreateGridView( this.Modulos[ index ] ) );
-    }
-  };
-  this.CreateGridView = function( objectJSON ){
-    var gridElement = document.createElement("div");
-
-    $(gridElement)
-      .addClass("uk-width-1-" + ( this.ColumnGrid ? this.ColumnGrid : "4" ) )
-      .addClass("uk-container-center")
-      .addClass("ctlControl")
-      .attr("dataUrlAction", objectJSON.Url )
-      .attr("dataUrlTitle", objectJSON.Title )
-      .css({"margin-top": "20px" })
-      .append(function(){
-        var elementHover = document.createElement("div");
-        $(elementHover)
-          .addClass("uk-panel")
-          .addClass("uk-panel-box")
-          .addClass("uk-panel-hover")
-          .append( function(){
-            var elementHeader = document.createElement("div");
-            $(elementHeader)
-              .addClass("uk-panel")
-              .addClass("uk-panel-header")
-              .append("<h3 class='uk-panel-title'>" + objectJSON.Title + " </h3>")
-              return elementHeader;
-          })
-          .append("<br />")
-          .append(function(){
-            var elementImageContainer = document.createElement("div");
-            imageExists(objectJSON.ImageUrl +"?"+ new Date().getTime() , function(pRESULT){
-              if(pRESULT){
-                $(elementImageContainer)
-                  .addClass("uk-panel-teaser")
-                  .css({"text-align":"center"})
-                  .append("<img src='" + objectJSON.ImageUrl +"?"+ new Date().getTime() + "' />");
-              }
-              else{
-                $(elementImageContainer)
-                  .addClass("uk-panel-teaser")
-                  .css({"text-align":"center"});
-              }
-            });
-              return elementImageContainer;
-          })
-          .append("<span>" + objectJSON.Description + "</span>");
-          return elementHover;
-      });
-    return gridElement;
-  };
-  this.__Init();
-}
-//==============================================================================
-//==============================================================================
-function CreateDiagram( ObjectCoumnsJSON , objectJSON ){
-  var counterUpper = 0;
-  var counterLower = 0;
-  for (var i = 0; i < ObjectCoumnsJSON.length; i++) {
-    counterUpper += ( ObjectCoumnsJSON[i].IsUpper=='Y')?1:0;
-    counterLower += ( ObjectCoumnsJSON[i].IsUpper=='N')?1:0;
-  }
-  counterUpper =  counterUpper > counterLower ? counterUpper: counterLower;
-	$(".tblSiteMap")
-		.append(function(){
-			var elementTHEAD = document.createElement("thead");
-			$(elementTHEAD)
-				.append(function(){
-					var elementTR = document.createElement("tr");
-					for (var index = 0; index < counterUpper; index++) {
-						if( parseInt( (counterUpper )/2 ) == index ){
-							$(elementTR).append("<th>Index</th>");
-						}
-						else{
-							$(elementTR).append("<th></th>");
-						}
-					}
-					return elementTR;
-				});
-			return elementTHEAD;
-		})
-		.append(function(){
-			var elementTBODY = document.createElement("tbody");
-			$(elementTBODY)
-			.append(function(){
-				var elementTR = document.createElement("tr");
-				for (var index = 0; index < ObjectCoumnsJSON.length; index++) {
-          if( ObjectCoumnsJSON[ index ].IsUpper=='N')
-          continue;
-					$(elementTR).append(function(){
-            var elementTD = document.createElement("td");
-            $(elementTD)
-              .attr("data-title",ObjectCoumnsJSON[ index ].Title.replace(/\s/g, "") )
-              .attr("data-id",ObjectCoumnsJSON[ index ].ID )
-              .append("<h4 class='ui-state-default ui-state-disabled'>"+ObjectCoumnsJSON[ index ].Title+"</h4>");
-
-            return elementTD;
-          });
-				}
-				return elementTR;
-			})
-			.append(function(){
-				var elementTR = document.createElement("tr");
-				for (var index = 0; index < ObjectCoumnsJSON.length; index++) {
-          if( ObjectCoumnsJSON[ index ].IsUpper=='Y')
-          continue;
-					$(elementTR).append(function(){
-            var elementTD = document.createElement("td");
-            $(elementTD)
-              .attr("data-title",ObjectCoumnsJSON[ index ].Title.replace(/\s/g, "") )
-              .attr("data-id",ObjectCoumnsJSON[ index ].ID )
-              .append("<h4 class='ui-state-default ui-state-disabled'>"+ObjectCoumnsJSON[ index ].Title+"</h4>");
-            return elementTD;
-          });
-				}
-				return elementTR;
-			});
-			return elementTBODY;
-		});
-	for (var index = 0; index < objectJSON.length; index++) {
-    var parentTitle = objectJSON[ index ].Parent.replace(/\s/g, "");
-    if( parentTitle.length ==0 ){
-  		$(".pnlPageItem").append( CreateSitePreView( objectJSON[ index ]) );
-    }
-    else{
-  		$(".tblSiteMap")
-  			.find("tbody")
-  			.find("[data-title="+parentTitle+"]")
-  			.append( CreateSitePreView( objectJSON[ index ]) );
-    }
-	}
-  $(".pnlPageItem").sortable({
-    connectWith: $(".tblSiteMap").find( "td" ).selector ,
-    handle     : ".ctlHandler",
-    placeholder: "portlet-placeholder ui-corner-all",
-    appendTo : document.body,
-    start: function(){
-        $(".pnlPageItem").css({"overflow-y":"visible"});
-    },
-    stop : function(){
-      $(".pnlPageItem").css({"overflow-y":"auto"});
-    },
-    remove: function( event, ui ) {
-      var elementSite = ui.item[0];
-      var itemOrder = 0;
-      var parentID = $(elementSite).parent().attr("data-id");
-      for (var i = 0; i < $("[data-id="+parentID+"]").find("div").length; i++) {
-          var itemSite = $("[data-id="+parentID+"]").find("div").get(i);
-          if( $(itemSite).attr("data-id") ==  $(elementSite).attr("data-id") ){
-            break;
-          }
-          itemOrder++;
-      }
-      Ajax_ServerRequest( '../lib/php/ControlContenidos.php',  "POST" , {
-        "field_content_CommandType" : "reOrderMenu",
-        "ParentID"  : parentID,
-        "OrdeBegin" : itemOrder,
-        "PageID"    : $(elementSite).attr("data-id")
-      });
-    }
-  });
-  $(".tblSiteMap")
-    .find( "td" ).sortable({
-      connectWith: ".tblSiteMap tbody td",
-      handle: ".ctlHandler",
-      items: "div.imgViewSite",
-      placeholder: "portlet-placeholder ui-corner-all",
-      stop: function( event, ui ) {
-        var elementSite = ui.item[0];
-        var itemOrder = 0;
-        var parentID = $(elementSite).parent().attr("data-id");
-        for (var i = 0; i < $("[data-id="+parentID+"]").find("div").length; i++) {
-            var itemSite = $("[data-id="+parentID+"]").find("div").get(i);
-            if( $(itemSite).attr("data-id") ==  $(elementSite).attr("data-id") ){
-              break;
-            }
-            itemOrder++;
-        }
-        Ajax_ServerRequest( '../lib/php/ControlContenidos.php',  "POST" , {
-          "field_content_CommandType" : "reOrderMenu",
-          "ParentID"  : parentID,
-          "OrdeBegin" : itemOrder,
-          "PageID"    : $(elementSite).attr("data-id")
-        });
-      }
-  });
-
-  $(".tblSiteMap").find( ".uk-panel" )
-    .addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
-    .find( ".portlet-header" )
-    .addClass( "ui-widget-header ui-corner-all" )
-    .prepend( "<span class='ui-icon ui-icon-minusthick portlet-toggle'></span>");
-};
-function CreateSitePreView( objectJSON ){
-	var elementDIV = document.createElement("div");
-	$(elementDIV)
-    .attr("data-id",objectJSON.ID)
-		.addClass("panel")
-		.addClass("uk-panel-box")
-		.addClass("imgViewSite")
-		.append(function(){
-			var elementH3 = document.createElement("h3");
-			$(elementH3)
-				.addClass("uk-panel-title")
-				.addClass("ctlHandler")
-				.append("<i class='uk-icon-arrows'></i>")
-        .append(function(){
-    			var elementButton = document.createElement("button");
-    			$(elementButton)
-            .css({"float":"right"})
-            .attr("parent-id",objectJSON.ID)
-            .addClass("uk-button")
-            .addClass("uk-button-danger")
-    				.append("<i class='uk-icon-trash uk-icon-mini'></i>")
-            .click(function(){
-              Ajax_ServerRequest( '../lib/php/ControlContenidos.php',  "POST" , {
-                "field_content_CommandType" : "reOrderMenu",
-                "ParentID"  : 0,
-                "OrdeBegin" : 0,
-                "PageID"    : $(this).attr("parent-id")
-              },
-              function(){
-                $( elementDIV ).effect( "blind", {}, 200, function(){
-                  $(elementDIV).remove();
-                });
-              });
-            });
-    			return elementButton;
-    		});
-			return elementH3;
-		})
-		.append(function(){
-			var elementContainer = document.createElement("div");
-			$(elementContainer)
-				.addClass("uk-panel-teaser")
-				.append("<img src='"+objectJSON.ImageUrl+"' style='width: 50px; height: 50px;'  />");
-			return elementContainer;
-		})
-		.append("<p>"+objectJSON.Titulo+"</p>")
-	return elementDIV;
-};
-
-function GetContentSource(){
-  var DataFormat = {};
-  DataFormat["field_content_CommandType"] = "GetTemplateSource";
-  DataFormat["ContentSource"] = $("[name=pnlTemplate_Source]").attr("data-source");
-
-  DataFormat["ContentFilter"] = "";
-  if( $("[name=pnlTemplate_Source]").attr("data-parameter-source") ){
-    var array_parametersSource = $("[name=pnlTemplate_Source]").attr("data-parameter-source").split(";");
-    var array_parameter = $("[name=pnlTemplate_Source]").attr("data-parameter").split(";");
-    for (var i = 0; i < array_parametersSource.length; i++) {
-      DataFormat["ContentFilter"] = " AND "+array_parametersSource[ i ]+" = "+array_parameter[i];
-    }
-  }
-  $.ajax({
-     type : "post"                         ,
-     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-     url  : "Resources/lib/php/ControlContenidos.php" ,
-     data : { "Request" : btoa( JSON.stringify( DataFormat )) } , // serializes the form's elements.
-     success: function( data ){
-       var months_names=  ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-       var sourceJSON = JSON.parse( data );
-       var stepSize = 10;
-
-      $("[name=pnlTemplate]").append("<ul data-role='headerTab'></ul>");
-       var  indexCounter = 0;
-       var elememtContainer = {};
-       for (var index = 0; index < sourceJSON.length; index++) {
-         if( indexCounter == 0){
-           elememtContainer = document.createElement("div");
-            $(elememtContainer).attr("id", "tab-"+( index / 10) );
-         }
-         var elementTemple = $("[name=pnlTemplate_Source]>div").clone();
-         for( TempleKey in sourceJSON[ index ] ){
-           for( var  i = 0; i < $(elementTemple).find("[data-name]").length ; i++){
-              var templeField = $(elementTemple).find("[data-name]").get(i);
-              if( $(templeField ).attr("data-name").indexOf( TempleKey )!= -1){
-                var array_names       = $(templeField ).attr("data-name").split(",");
-                var array_properties  = $(templeField ).attr("data-attribute").split(",");
-                var array_types       = $(templeField ).attr("data-type")   ? $(templeField ).attr("data-type").split(",")    : [];
-                var array_format      = $(templeField ).attr("data-format") ? $(templeField ).attr("data-format").split(",")  : [];
-
-                for(var c = 0; c < array_names.length ; c++){
-                  if( array_properties[c] == "src"){
-                    $(templeField).attr("src","lib/images/" + sourceJSON[ index ][ array_names[c] ] );
-                  }
-                  else if( array_properties[c] == "href" ){
-                    if( $(templeField).attr("data-href") ){
-                      $(templeField).attr("href", $(templeField).attr("data-href")+"?PID="+sourceJSON[ index ][ array_names[c] ] );
-                    }
-                    else{
-                      $(templeField).attr("href", sourceJSON[ index ][ array_names[c] ] );
-                    }
-                  }
-                  else if( array_properties[c] == "dataurl" ){
-                    if( $(templeField).attr("dataurl") ){
-                      $(templeField).attr("dataurl", $(templeField).attr("dataurl")+"?"+$(templeField).attr("data-parameter")+"="+sourceJSON[ index ][ array_names[c]] );
-                    }
-                    else {
-                      $(templeField).attr("dataurl", sourceJSON[ index ][ array_names[c]] );
-                    }
-                  }
-                  else if( array_properties[c] == "html" ){
-                    if( array_types[c] == "date"){
-                      var tempDate = new Date( sourceJSON[ index ][ array_names[c] ] );
-                      var dateValue = tempDate.getDate()+" "+ months_names[ tempDate.getMonth() ];
-                      $(templeField)
-                        .attr("data-value", sourceJSON[ index ][ array_names[c] ] )
-                        .html( dateValue );
-                    }
-                    else{
-                      $(templeField).html( sourceJSON[ index ][ array_names[c] ] );
-                    }
-                  }
-                  else if( array_properties[c] == "backcolor" ){
-                    $(templeField).css("background-color", sourceJSON[ index ][ array_names[c] ] );
-                  }
-                  else if( array_properties[c] == "background-image" ){
-                    $(templeField).css("background-image", "url('lib/images/"+sourceJSON[ index ][ array_names[c] ]+"')" );
-                  }
-                  else if( array_properties[c] == "forecolor" ){
-                    $(templeField).css("color", sourceJSON[ index ][ array_names[c] ] );
-                  }
-                }
-              }
-           }
-         }
-         indexCounter++;
-         if( indexCounter >= 10){
-           indexCounter = 0;
-         }
-         $(elememtContainer).append( elementTemple )
-         $("[name=pnlTemplate]").append(elememtContainer);
-       }
-        $( "[name=pnlTemplate]" ).tabs({
-          collapsible: true
-        });
-        _pageController.AsingEventClick();
      }
    });
 }
